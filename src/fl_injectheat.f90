@@ -46,7 +46,7 @@ goto 222 !Tian Comment this block, it make ninjbot become weird
 !----------------------------------------
 ! Tian: don't understand this block (end)
 !----------------------------------------
-
+!write(*,*), "rate_inject= ", rate_inject
    do 100 j=jinj1,ninjbot+1
 !-------------------------------------------------------------------------------
 ! Compute areas to centers of adjacent cells

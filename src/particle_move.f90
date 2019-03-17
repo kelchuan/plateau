@@ -200,7 +200,7 @@ do SDR_ind = 1,ind !SDR_ind is the index of # of reflector
       endif
       if (vxp.eq.999.0d0.or.vzp.eq.999.0d0) then
          write(*,*) 'Problems in particle_move, setting particle velocity'
-         stop
+!         stop
       endif
       !  write(*,*) xp(i), zp(i)
       !100  continue

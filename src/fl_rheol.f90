@@ -11,7 +11,12 @@ include 'arrays.inc'
 dimension depl(4)
 dimension s11p(4),s22p(4),s12p(4),s33p(4),s11v(4),s22v(4),s12v(4),s33v(4)
 logical rh_sel
-real :: rate_inject_later
+!real :: rate_inject_later
+! for gaussian magma flux 
+! rate(time)=rate_max*exp(-0.5 * (time-time_max)**2/rate_c**2)
+real :: rate_max = 3.17e-9 ! meter/second --> 10cm/yr
+real :: rate_time_max = 1.2 !Myr
+real :: rate_c = 1.2;  ! width parameter
 !for Roger_stress
 !real, dimension(1:nelem_inject) :: stress_roger, pressure_roger
 !real :: dz_elem = 1000, density_dike = 2800
@@ -40,7 +45,7 @@ if (ny_inject.gt.0) then
          !nelem_inject = nz-1 (Tian: Comment this hardwired dike depth)
          !average dx for injection:
          dxinj = 0.
-         do jinj = 1,nelem_inject
+         do jinj = iy1(1),iy2(1)
             !Tian Add temperature to the dike as 1300 C
             !if (mod(int(time*0.5*3.171d-8*1.d-6*10),2).eq.0) then
             !   temp(jinj,iinj) = 1100 
@@ -79,10 +84,17 @@ if (ny_inject.gt.0) then
          poiss = 0.5*rl(iph)/(rl(iph)+rm(iph))
          young = rm(iph)*2.*(1.+poiss)   
          ! Additional Stress:
-         !rate_inject_later = 0.5 * rate_inject !Tian
-         !if (time*3.171d-8*1.d-6 > 3 .and. time*3.171d-8*1.d-6 < 6) then !(Tian: stop infill after 5Myr, and change M )
-         !   rate_inject = rate_inject_later !(Tian: change M)                                   
-         !else
+!         rate_inject_later = 3.17e-10 !Tian
+!         if (time*3.171d-8*1.d-6 > 3 .and. time*3.171d-8*1.d-6 < 6) then !(Tian: stop infill after 5Myr, and change M )
+!         if (time*3.171d-8*1.d-6 > 1.6 .and. time*3.171d-8*1.d-6 < 3.2) then !(Tian: Plateau)
+!            rate_inject = rate_inject_later !(Tian: change M)
+!         elseif(time*3.171d-8*1.d-6 > 3.2) then                                   
+!            rate_inject = 0.
+!         endif
+         rate_inject = rate_max * exp(-0.5 * (time*3.171d-8*1.d-6 - rate_time_max)**2/rate_c**2)
+!         write(*,*), "rate_max =",rate_max, "timeMyr=",time*3.171d-8*1.d-6, "rate_time_max=",rate_time_max,"rate_c=",rate_c
+!         write(*,*), "rate_inject_fl_rheo= ", rate_inject
+            !else
          !   rate_inject = rate_inject_later * 2
          !endif !(Tian)
          sarc1 = -young/(1.-poiss*poiss)*rate_inject/dxinj*dt
@@ -149,7 +161,9 @@ do 3 i = 1,nx-1
         if (irh.eq.3 .or. irh.eq.12) then 
             if( mod(nloop,ifreq_visc).eq.0 .OR. ireset.eq.1 ) visn(j,i) = Eff_visc(j,i)
 !            if (ny_inject.gt.0.and.i.eq.iinj) visn(j,i) = v_min  
-            if (ny_inject.gt.0.and.i.eq.iinj.and.j.le.nelem_inject) visn(j,i) = 1e18  !Tian1607, continuous plate-->broken plate Turcotte 2010
+!            if (ny_inject.gt.0.and.i.eq.iinj.and.j.ge.iy1(1).and.j.le.iy2(1)) visn(j,i) = 1e18  !Tian_Plateau
+            if (ny_inject.gt.0.and.i.eq.iinj.and.j.le.iy2(1)) visn(j,i) = 1e16  !Tian_Plateau
+!            if (ny_inject.gt.0.and.i.eq.iinj.and.j.le.nelem_inject) visn(j,i) = 1e18  !Tian1607, continuous plate-->broken plate Turcotte 2010
 !            if (ny_inject.gt.0.and.i.eq.iinj) visn(j,i) = 1e17  !Tian1607, continuous plate-->broken plate Turcotte 2010
 !            if (ny_inject.gt.0.and.i.eq.iinj) visn(j,i) = 1e15  !Tian2017 to solve the grid size sigma_xx high at dike problem, continuous plate-->broken plate Turcotte 2010
 
@@ -173,7 +187,8 @@ do 3 i = 1,nx-1
             dv = dvol(j,i,k)
             s11p(k) = stress0(j,i,1,k) + stherm 
             s22p(k) = stress0(j,i,2,k) + stherm 
-            if(ny_inject.gt.0.and.j.le.nelem_inject) then
+            if(ny_inject.gt.0.and.j.gt.iy1(1).and.j.le.iy2(1)) then  !Tian_Plateau
+!            if(ny_inject.gt.0.and.j.le.nelem_inject) then
                 !XXX: iinj is un-init'd if ny_inject is not 1 or 2.
                 if(i.eq.iinj) then
 !               if(i.eq.iinj.or.i.eq.iinj-2.or.i.eq.iinj-1.or.i.eq.iinj+1.or.i.eq.iinj+2.or.i.eq.iinj+3) then !Tian wider_dike

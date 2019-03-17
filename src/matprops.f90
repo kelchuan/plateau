@@ -38,7 +38,15 @@ function Eff_dens( j, i)
           press = dens*g*zcord
 
           dens = den(k) * ( 1 - alfa(k)*tmpr + beta(k)*press )
-
+          !for Plateau 2018 begin                                                                                    
+          if(k==6 .or. k==7) then  !dike phase#                                                                      
+             if(tmpr.le.950) then
+                dens = 2950
+             else
+                dens = 2800
+             endif
+          endif
+          !for Plateau 2018 end               
           if(k==ksed1 .or. k==ksed2) then
 !              sed_min_density = 2400. !Tian1607 
               sed_min_density = 2700.
