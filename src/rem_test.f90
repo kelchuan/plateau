@@ -21,8 +21,8 @@ integer function itest_mesh()
   ! dx_rem*dx - critical distance of shortnening
   if( mode_rem .eq. 11.or.mode_rem.eq.3 ) then
       testcr = dx_rem * rxbo / (nx-1)
-      !shortening = abs(cord(1,nx,1) - cord(1,1,1) - rxbo)
-      shortening = abs(x0 - cord(1,1,1))
+      shortening = abs(cord(1,nx,1) - cord(1,1,1) - rxbo)
+      !shortening = abs(x0 - cord(1,1,1))
       if ( shortening .gt. testcr ) then
           if( dtout_screen .ne. 0 ) then
               print *, 'Remeshing due to shortening required: ', shortening

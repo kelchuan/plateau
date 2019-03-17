@@ -129,7 +129,7 @@ visn(1:nzt,1:nxt) = dummy(1:nzt,1:nxt)
 ! and is within 3-element distance from the boundary and has the
 ! same layered structure as the 4th element away from the boundary
 
-idist = 1
+idist = 2
 if(incoming_left==1) then
     do jj = 1, nz-1
         if((cord(1,1,2) - 0.5*(cord(jj,1,2)+cord(jj+1,1,2))) > hc(1)*1e3) exit

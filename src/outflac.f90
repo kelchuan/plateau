@@ -153,15 +153,29 @@ if( io_sII.eq.1 ) then
 endif
 
 
-! Sxx in [kb]
+! Sxx in [kb] deviatoric
 if( io_sxx.eq.1 ) then
     do i = 1, nx-1
         do j = 1, nz-1
             sxx = 0.25 * (stress0(j,i,1,1)+stress0(j,i,1,2)+stress0(j,i,1,3)+stress0(j,i,1,4) )
             De(j,i) = real(( sxx-stressI(j,i) ) * 1.e-8)
+            !De(j,i) = real( sxx  * 1.e-8)
         end do
     end do
     open (1,file='sxx.0',access='direct',recl=nwords*kindr) 
+    write (1,rec=nrec) De
+    close (1)
+endif
+! Sxx in [kb] absolute
+if( io_sxx.eq.1 ) then
+    do i = 1, nx-1
+        do j = 1, nz-1
+            sxx = 0.25 * (stress0(j,i,1,1)+stress0(j,i,1,2)+stress0(j,i,1,3)+stress0(j,i,1,4) )
+            !De(j,i) = real(( sxx-stressI(j,i) ) * 1.e-8)
+            De(j,i) = real( sxx  * 1.e-8)
+        end do
+    end do
+    open (1,file='sxx_abs.0',access='direct',recl=nwords*kindr) 
     write (1,rec=nrec) De
     close (1)
 endif
@@ -180,6 +194,19 @@ if( io_szz.eq.1 ) then
     close (1)
 endif
 
+! Szz in [kb] absolute
+if( io_szz.eq.1 ) then
+    do i = 1, nx-1
+        do j = 1, nz-1
+            szz = 0.25 * (stress0(j,i,2,1)+stress0(j,i,2,2)+stress0(j,i,2,3)+stress0(j,i,2,4) )
+            De(j,i) = real( szz  * 1.e-8)
+        end do
+    end do
+    open (1,file='szz_abs.0',access='direct',recl=nwords*kindr) 
+    write (1,rec=nrec) De
+    close (1)
+endif
+
 
 ! Sxz in [kb]
 if( io_sxz.eq.1 ) then
@@ -193,6 +220,18 @@ if( io_sxz.eq.1 ) then
     write (1,rec=nrec) De
     close (1)
 endif
+! stress difference in MPa Tian 201801
+do i = 1, nx-1
+   do j = 1, nz-1
+      sxx = 0.25 * (stress0(j,i,1,1)+stress0(j,i,1,2)+stress0(j,i,1,3)+stress0(j,i,1,4))
+      szz = 0.25 * (stress0(j,i,2,1)+stress0(j,i,2,2)+stress0(j,i,2,3)+stress0(j,i,2,4))
+      De(j,i) = real((sxx-szz) * 1.e-8)
+   end do
+end do
+open (1,file='s_diff.0',access='direct',recl=nwords*kindr) 
+write (1,rec=nrec) De
+close (1)
+
 
 
 ! Pressure in [kb]

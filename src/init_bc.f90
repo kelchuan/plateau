@@ -87,21 +87,13 @@ subroutine init_bc
           x1 = cord ( nbc1(i),1, 2)
           x2 = cord ( nbc2(i),1, 2)
 
-!          do n = 1,ndbc
-          do n = nbc1(i),nbc2(i) !20180114 Tian: bug found for preventing only partial BC vx on the left 
+          do n = 1,ndbc
               k = i
               if(i.gt.1) then
                   if(nbc(i).eq.nbc(i-1).and.nofside(i).eq.nofside(i-1).and.n.le.ndbc1)then
                       k=i-1
                   endif
               endif
-              ! Tian 2018Jan Allow only lower crust left BC with vx = 0 begins
-              !if(n < nbc1(i))then
-              !   numbp = nbc1(i)
-              !else
-              !   numbp = n
-              !endif
-              ! Tian 2018Jan Allow only lower crust left BC with vx = 0 ends
               numbp  = n   
               x  = (cord (numbp,1,2)  - x1)/(x2-x1)
               if (nbc(i).eq.1.or.nbc(i).eq.10.or.nbc(i).eq.30)  &

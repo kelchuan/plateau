@@ -129,7 +129,8 @@ HeatLatent = 500000. !following Behn and Ito 2008
 tmpr = 0.25*(temp(j,i)+temp(j+1,i)+temp(j,i+1)+temp(j+1,i+1))
 if( tmpr .lt. ts(iph) ) then
    Eff_cp = cp(iph)
-elseif( tmpr .lt. tl(iph)+1 ) then
+!elseif( tmpr .lt. tl(iph)+1 ) then
+elseif( tmpr .lt. tl(iph)+1 .and. i.le.(iinj2) .and. i.ge.(iinj1) .and. j.le.(jinj2+1) .and. j.ge.(jinj1-1)) then
    Eff_cp = cp(iph) + HeatLatent/(tl(iph)-ts(iph))
 else
    Eff_cp = cp(iph)

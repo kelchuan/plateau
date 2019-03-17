@@ -149,7 +149,7 @@ do 3 i = 1,nx-1
         if (irh.eq.3 .or. irh.eq.12) then 
             if( mod(nloop,ifreq_visc).eq.0 .OR. ireset.eq.1 ) visn(j,i) = Eff_visc(j,i)
 !            if (ny_inject.gt.0.and.i.eq.iinj) visn(j,i) = v_min  
-!            if (ny_inject.gt.0.and.i.eq.iinj.and.j.le.nelem_inject) visn(j,i) = 1e18  !Tian1607, continuous plate-->broken plate Turcotte 2010
+            if (ny_inject.gt.0.and.i.eq.iinj.and.j.le.nelem_inject) visn(j,i) = 1e18  !Tian1607, continuous plate-->broken plate Turcotte 2010
 !            if (ny_inject.gt.0.and.i.eq.iinj) visn(j,i) = 1e17  !Tian1607, continuous plate-->broken plate Turcotte 2010
 !            if (ny_inject.gt.0.and.i.eq.iinj) visn(j,i) = 1e15  !Tian2017 to solve the grid size sigma_xx high at dike problem, continuous plate-->broken plate Turcotte 2010
 

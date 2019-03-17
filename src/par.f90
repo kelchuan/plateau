@@ -128,8 +128,7 @@ do while( time .le. time_max )
   if( ny_rem.eq.1 .and. itherm.ne.2 ) then
     if( itest_mesh() .eq. 1 ) then
        ! Skip the therm calculations and maintain init_temp if itherm = 3 (Tian_2017May)
-!       if ((itherm .eq. 3) .and. (iynts.eq.1)) then
-       if ((itherm .eq. 3)) then
+       if ((itherm .eq. 3) .and. (iynts.eq.1)) then
           call init_temp
        endif
 !      if(iynts.eq.1) call init_temp  ![Tian Commented for thermal calculation]

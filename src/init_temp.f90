@@ -182,7 +182,7 @@ subroutine sidewalltemp(i1, i2)
       ! right sidewall
       n = nzone_age
   endif
-goto 2222 !Commented for linear T (Tian 2018Jan)
+
   if(iph_col1(n)==kocean1 .or. iph_col1(n)==kocean2) then
       !! Oceanic geotherm (half space cooling model)
       do i = i1, i2
@@ -226,11 +226,6 @@ goto 2222 !Commented for linear T (Tian 2018Jan)
           enddo
       enddo
   endif
-2222 continue !Commented for linear T (Tian 2018Jan)
-  ! estimate initial temperature as linear (for first approx. of conductivities)
-  do j = 1,nz
-     temp(j,1:nx) = (t_bot-t_top)/abs(rzbo)*abs(cord(j,1,2)-z0) + t_top
-  end do
 
   if(i1 == 1) then
       do i = i1, i2
