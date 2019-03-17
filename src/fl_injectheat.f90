@@ -21,7 +21,8 @@ include 'arrays.inc'   ! vs BI: not the same
  
 dimension njTinj(nz) 
 
-ninj=iinj2-iinj1+1   !new ninj(horizontal #nodes), iinj1(left bound of dike), iinj2(right bound)
+!ninj=iinj2-iinj1+1   !new ninj(horizontal #nodes), iinj1(left bound of dike), iinj2(right bound)
+ninj=jinj2-jinj1+1   !new ninj(horizontal #nodes), iinj1(left bound of dike), iinj2(right bound)
 !fdum=xlatheat/( cp(1)*(Tliq-Tsol) )   !L/(Cp*(T_liq - T_sol))
 iph = 6   ! phase of the dike
 fdum=xlatheat/( cp(iph)*(tl(iph)-ts(iph)) )   !L/(Cp*(T_liq - T_sol))
@@ -47,7 +48,8 @@ goto 222 !Tian Comment this block, it make ninjbot become weird
 ! Tian: don't understand this block (end)
 !----------------------------------------
 !write(*,*), "rate_inject= ", rate_inject
-   do 100 j=jinj1,ninjbot+1
+!   do 100 j=jinj1,ninjbot+1
+   do 100 j=jinj1,jinj2+1
 !-------------------------------------------------------------------------------
 ! Compute areas to centers of adjacent cells
 !-------------------------------------------------------------------------------
@@ -85,25 +87,25 @@ goto 222 !Tian Comment this block, it make ninjbot become weird
 !         endif
 
 
-   rfac=ratfac*rate_inject*dt/(dx11*dble(ninj))   ! no need to have ratfac
+   rfac=ratfac*rate_inject*dt/(dy11*dble(ninj))   ! no need to have ratfac
    T0=0.25*(temp(j1,i1)+temp(j1,i)+temp(j,i1)+temp(j,i))
    dtemp=dtemp_inj(T0,tl(iph),ts(iph),rfac,fdum)
    dtemp=dmin1(dtemp,tl(iph)-T0)
    dtemp11=dmax1(dtemp,0.0)
 
-   rfac=ratfac*rate_inject*dt/(dx12*dble(ninj))
+   rfac=ratfac*rate_inject*dt/(dy12*dble(ninj))
    T0=0.25*(temp(j1,i)+temp(j1,i2)+temp(j,i)+temp(j,i2))
    dtemp=dtemp_inj(T0,tl(iph),ts(iph),rfac,fdum)
    dtemp=dmin1(dtemp,tl(iph)-T0)
    dtemp12=dmax1(dtemp,0.0)
 
-   rfac=ratfac*rate_inject*dt/(dx21*dble(ninj))
+   rfac=ratfac*rate_inject*dt/(dy21*dble(ninj))
    T0=0.25*(temp(j,i1)+temp(j,i)+temp(j2,i1)+temp(j2,i))
    dtemp=dtemp_inj(T0,tl(iph),ts(iph),rfac,fdum)
    dtemp=dmin1(dtemp,tl(iph)-T0)
    dtemp21=dmax1(dtemp,0.0)
 
-   rfac=ratfac*rate_inject*dt/(dx22*dble(ninj))
+   rfac=ratfac*rate_inject*dt/(dy22*dble(ninj))
    T0=0.25*(temp(j,i)+temp(j,i2)+temp(j2,i)+temp(j2,i2))
    dtemp=dtemp_inj(T0,tl(iph),ts(iph),rfac,fdum)
    dtemp=dmin1(dtemp,tl(iph)-T0)

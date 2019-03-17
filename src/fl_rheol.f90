@@ -40,66 +40,60 @@ if (ny_inject.gt.0) then
          sarc1 = 0.
          sarc2 = 0. 
          if (ny_inject.eq.1) iinj = 1
-         if (ny_inject.eq.2) iinj = nx/2 
+         if (ny_inject.eq.2) iinj = nx/2
+         if (ny_inject.eq.3) then !Tian_2019_sill
+            jinj = iy1(1)
+            goto 222 ! for sill formation, continue at 222, skip the diking part
+         end if
          !write (*,*) iinj
-         !nelem_inject = nz-1 (Tian: Comment this hardwired dike depth)
          !average dx for injection:
          dxinj = 0.
          do jinj = iy1(1),iy2(1)
-            !Tian Add temperature to the dike as 1300 C
-            !if (mod(int(time*0.5*3.171d-8*1.d-6*10),2).eq.0) then
-            !   temp(jinj,iinj) = 1100 
-            !endif
-            !temp(jinj,iinj + 1) = 1200
-!            if (mod(int(time*0.5*3.171d-8*1.d-6),2).eq.0) then  !(Tian: added for change color dike in different period)
             if (jinj .ge. iy1(1) .and. jinj .le. iy2(1)) then
                if (mod(int(time*0.1*3.171d-8*1.d-5),2).eq.0) then  !(Tian: every 0.2 Myrs rather than 2 Myrs)
                   iphase(jinj,iinj) = 6 !(Tian:add a line of hardwired dike phase) 
-!               iphase(jinj,iinj+1) = 8 !(Tian:add a line of hardwired dike phase) 
-!               iphase(jinj,iinj+2) = 6 !(Tian:add a line of hardwired dike phase)  For HD1
-!               iphase(jinj,iinj+3) = 6 !(Tian:add a line of hardwired dike phase)  For HD1
-!               iphase(jinj,iinj-2) = 6 !Tian, wider_dike                           For HD1
-!               iphase(jinj,iinj-1) = 6 !Tian, wider_dike
-!            elseif (mod(int(time*0.5*3.171d-8*1.d-6),2).eq.1) then !(Tian: added for change color dike in different period 2Myr
                elseif (mod(int(time*0.1*3.171d-8*1.d-5),2).eq.1) then !(Tian: added for change color dike in different period 2Myr
                   iphase(jinj,iinj) = 7 !(Tian:add a line of hardwired dike phase)
-!               iphase(jinj,iinj+1) = 8 !(Tian:add a line of hardwired dike phase)
-!               iphase(jinj,iinj+2) = 7 !(Tian:add a line of hardwired dike phase) For HD1
-!               iphase(jinj,iinj+3) = 7 !(Tian:add a line of hardwired dike phase) For HD1
-!               iphase(jinj,iinj-1) = 7 !Tian, wider_dike
-!               iphase(jinj,iinj-2) = 7 !Tian, wider_dike                          For HD1
                endif
-            ! iphase(jinj,iinj) = 6 !(Tian:add a line of hardwired dike phase)
                iph=iphase(jinj,iinj)
-!            dxinj=dxinj+cord(jinj,iinj+1,1)-cord(jinj,iinj,1)
-!            dxinj=dxinj+cord(jinj,iinj+1,1)-cord(jinj,iinj-1,1) !Tian, wider_dike 
             endif
-            dxinj=dxinj+cord(jinj,iinj+1,1)-cord(jinj,iinj,1) !Tian, wider_dike 
-            
+            dxinj=dxinj+cord(jinj,iinj+1,1)-cord(jinj,iinj,1) !Tian, wider_dike             
          enddo
          dxinj = dxinj/nelem_inject 
-!         dxinj = dxinj/nelem_inject * 3 !Tian, wider_dike
-!         dxinj = dxinj/nelem_inject * 6 !Tian, wider_dike For HD1
          ! Constants Elastic:
          poiss = 0.5*rl(iph)/(rl(iph)+rm(iph))
          young = rm(iph)*2.*(1.+poiss)   
-         ! Additional Stress:
-!         rate_inject_later = 3.17e-10 !Tian
-!         if (time*3.171d-8*1.d-6 > 3 .and. time*3.171d-8*1.d-6 < 6) then !(Tian: stop infill after 5Myr, and change M )
-!         if (time*3.171d-8*1.d-6 > 1.6 .and. time*3.171d-8*1.d-6 < 3.2) then !(Tian: Plateau)
-!            rate_inject = rate_inject_later !(Tian: change M)
-!         elseif(time*3.171d-8*1.d-6 > 3.2) then                                   
-!            rate_inject = 0.
-!         endif
          rate_inject = rate_max * exp(-0.5 * (time*3.171d-8*1.d-6 - rate_time_max)**2/rate_c**2)
 !         write(*,*), "rate_max =",rate_max, "timeMyr=",time*3.171d-8*1.d-6, "rate_time_max=",rate_time_max,"rate_c=",rate_c
 !         write(*,*), "rate_inject_fl_rheo= ", rate_inject
-            !else
-         !   rate_inject = rate_inject_later * 2
-         !endif !(Tian)
-         sarc1 = -young/(1.-poiss*poiss)*rate_inject/dxinj*dt
+!         sarc1 = -young/(1.-poiss*poiss)*rate_inject/dxinj*dt
+         sarc1 = -young*(1.-poiss)/((1+poiss)*(1-2*poiss))*rate_inject/dxinj*dt
          sarc2 = sarc1*poiss/(1.-poiss)
          !write(*,*) sarc1,sarc2
+222      continue  ! below till the endif are added for !Tian_2019_sill begins
+         !average dy for sill injection:
+         dyinj = 0.
+         do iinj = ix1(1),ix2(1)
+            if (iinj .ge. ix1(1) .and. iinj .le. ix2(1)) then
+               if (mod(int(time*0.1*3.171d-8*1.d-5),2).eq.0) then  !(Tian: every 0.2 Myrs rather than 2 Myrs)
+                  iphase(jinj,iinj) = 6 !(Tian:add a line of hardwired dike phase) 
+               elseif (mod(int(time*0.1*3.171d-8*1.d-5),2).eq.1) then !(Tian: added for change color dike in different period 2Myr
+                  iphase(jinj,iinj) = 7 !(Tian:add a line of hardwired dike phase)
+               endif
+               iph=iphase(jinj,iinj)
+            endif
+            dyinj=dyinj+dabs(cord(jinj+1,iinj,2)-cord(jinj,iinj,2) )
+         enddo
+         dyinj = dyinj/nelem_inject 
+
+         ! Constants Elastic:
+         poiss = 0.5*rl(iph)/(rl(iph)+rm(iph))
+         young = rm(iph)*2.*(1.+poiss)   
+         rate_inject = rate_max * exp(-0.5 * (time*3.171d-8*1.d-6 - rate_time_max)**2/rate_c**2)
+         sarc2 = -young*(1.-poiss)/((1+poiss)*(1-2*poiss))*rate_inject/dyinj*dt
+         sarc1 = sarc2*poiss/(1.-poiss)
+         !write(*,*) sarc1,sarc2
+!Tian_2019_sill ends       
 endif
 
 !Tian2017 added for kinematic bc phase of diking (begin)
@@ -160,19 +154,8 @@ do 3 i = 1,nx-1
         ! Re-evaluate viscosity
         if (irh.eq.3 .or. irh.eq.12) then 
             if( mod(nloop,ifreq_visc).eq.0 .OR. ireset.eq.1 ) visn(j,i) = Eff_visc(j,i)
-!            if (ny_inject.gt.0.and.i.eq.iinj) visn(j,i) = v_min  
-!            if (ny_inject.gt.0.and.i.eq.iinj.and.j.ge.iy1(1).and.j.le.iy2(1)) visn(j,i) = 1e18  !Tian_Plateau
-            if (ny_inject.gt.0.and.i.eq.iinj.and.j.le.iy2(1)) visn(j,i) = 1e16  !Tian_Plateau
-!            if (ny_inject.gt.0.and.i.eq.iinj.and.j.le.nelem_inject) visn(j,i) = 1e18  !Tian1607, continuous plate-->broken plate Turcotte 2010
-!            if (ny_inject.gt.0.and.i.eq.iinj) visn(j,i) = 1e17  !Tian1607, continuous plate-->broken plate Turcotte 2010
-!            if (ny_inject.gt.0.and.i.eq.iinj) visn(j,i) = 1e15  !Tian2017 to solve the grid size sigma_xx high at dike problem, continuous plate-->broken plate Turcotte 2010
-
-!            if (ny_inject.gt.0.and.i.eq.iinj+2.and.j.le.nelem_inject) visn(j,i) = 1e18  !Tian1607, continuous plate-->broken plate Turcotte 2010 For HD1
-!            if (ny_inject.gt.0.and.i.eq.iinj+3.and.j.le.nelem_inject) visn(j,i) = 1e18  !Tian1607, continuous plate-->broken plate Turcotte 2010 For HD1
-!            if (ny_inject.gt.0.and.i.eq.iinj-2.and.j.le.nelem_inject) visn(j,i) = 1e18  !Tian1607, continuous plate-->broken plate Turcotte 2010 For HD1
-!            if (ny_inject.gt.0.and.i.eq.iinj+1.and.j.le.nelem_inject) visn(j,i) = 1e18  !Tian1607, continuous plate-->broken plate Turcotte 2010  wider_dike
-!            if (ny_inject.gt.0.and.i.eq.iinj-1.and.j.le.nelem_inject) visn(j,i) = 1e18  !Tian1607, continuous plate-->broken plate Turcotte 2010 wider_dike
-!            if(visn(j,i).le.1e20) visn(j,i) = 1e15  !Tian2017
+!            if (ny_inject.gt.0.and.i.eq.iinj.and.j.le.iy2(1)) visn(j,i) = 1e16  !Tian_Plateau
+            if (ny_inject.gt.0.and.i.ge.ix1(1).and.i.le.ix2(1).and.j.eq.iy1(1)) visn(j,i) = 1e16  !Tian_2019_sill
         endif
         vis = visn(j,i)
 
@@ -187,39 +170,19 @@ do 3 i = 1,nx-1
             dv = dvol(j,i,k)
             s11p(k) = stress0(j,i,1,k) + stherm 
             s22p(k) = stress0(j,i,2,k) + stherm 
-            if(ny_inject.gt.0.and.j.gt.iy1(1).and.j.le.iy2(1)) then  !Tian_Plateau
-!            if(ny_inject.gt.0.and.j.le.nelem_inject) then
-                !XXX: iinj is un-init'd if ny_inject is not 1 or 2.
+            if(ny_inject.gt.0.and.ny_inject.ne.3.and.j.gt.iy1(1).and.j.le.iy2(1)) then  !Tian_Plateau
                 if(i.eq.iinj) then
-!               if(i.eq.iinj.or.i.eq.iinj-2.or.i.eq.iinj-1.or.i.eq.iinj+1.or.i.eq.iinj+2.or.i.eq.iinj+3) then !Tian wider_dike
-!               if(i.eq.iinj.or.i.eq.iinj-1.or.i.eq.iinj+1) then !Tian wider_dike
                     s11p(k) = stress0(j,i,1,k) + stherm +sarc1
                     s22p(k) = stress0(j,i,2,k) + stherm +sarc2
-                    !!            irh = 1
                 endif
             endif
-! Roger_stress begins (Tian Stress_Roger 20160810)
-!            if(ny_inject.gt.0.and.j.le.nelem_inject) then
-!                !XXX: iinj is un-init'd if ny_inject is not 1 or 2.
-!               if(i.eq.iinj-1) then
-!                  stress_roger(j) = 0.5 * (0.25 * (stress0(j,i,1,1) + stress0(j,i,1,2) +stress0(j,i,1,3)+ &
-!                       stress0(j,i,1,4)) + 0.25*( stress0(j,i+2,1,1) + stress0(j,i+2,1,2) +stress0(j,i+2,1,3) +&
-!                       stress0(j,i+2,1,4)))
-!                  stress_roger(j) = - (density_dike * 10 * (j-0.5) * dz_elem) - stress_roger(j)
-!                  stress_roger(j) = stress_roger(j) * 0.5 ! damping
-!                  if(stress_roger(j).le.-1.e6) stress_roger(j) = -1.e6
-!                  if(stress_roger(j).gt.1.e6) stress_roger(j) = 1.e6
-                 
-!                  write(*,*) 'j=',j, 'pressure=',- (2800 * 10 * (j-0.5) * dz_elem), 'stress_roger=', stress_roger(j)
-!               endif
-!               if(i.eq.iinj) then
-!!               if(i.eq.iinj.or.i.eq.iinj-1.or.i.eq.iinj+1) then !Tian wider_dike
-!                    s11p(k) = stress0(j,i,1,k) + stherm +sarc1+ stress_roger(j)
-!                    s22p(k) = stress0(j,i,2,k) + stherm +sarc2+ stress_roger(j) * poiss/(1.-poiss)
-!                    !!            irh = 1
-!               endif
-!            endif
-! Roger_stress ends
+            if(ny_inject.eq.3.and.j.eq.iy1(1).and.i.ge.ix1(1).and.i.le.ix2(1)) then  !Tian_Plateau
+!                if(i.eq.iinj) then
+               s11p(k) = stress0(j,i,1,k) + stherm +sarc1
+               s22p(k) = stress0(j,i,2,k) + stherm +sarc2
+!                endif
+            endif
+
             s12p(k) = stress0(j,i,3,k) 
             s33p(k) = stress0(j,i,4,k) + stherm
             s11v(k) = s11p(k)
@@ -357,13 +320,9 @@ do 3 i = 1,nx-1
             if (tau_heal .ne. 0.) &
                  aps (j,i) = aps (j,i)/(1.+dt/tau_heal)
 !            if (ny_inject.gt.0.and.i.eq.iinj) aps (j,i) = 0.
-            if (ny_inject.gt.0.and.i.lt.iinj+5) aps (j,i) = 0. !Tian wider zero plastic strain zero zone
-            if (ny_inject.gt.0.and.i.gt.(nx - 20)) aps (j,i) = 0. !Tian wider zero plastic strain zero zone
-!            if (ny_inject.gt.0.and.i.eq.iinj.or.i.eq.iinj-1) aps (j,i) = 0. !Tian wider_dike
-!            if (ny_inject.gt.0.and.i.eq.iinj.or.i.eq.iinj+1) aps (j,i) = 0. !Tian wider_dike
-!            if (ny_inject.gt.0.and.i.eq.iinj.or.i.eq.iinj+2) aps (j,i) = 0. !Tian wider_dike For HD1
-!            if (ny_inject.gt.0.and.i.eq.iinj.or.i.eq.iinj+3) aps (j,i) = 0. !Tian wider_dike For HD1
-!            if (ny_inject.gt.0.and.i.eq.iinj.or.i.eq.iinj-2) aps (j,i) = 0. !Tian wider_dike For HD1
+            if (ny_inject.gt.0.and.ny_inject.ne.3.and.i.lt.iinj+5) aps (j,i) = 0. !Tian wider zero plastic strain zero zone
+            if (ny_inject.gt.0.and.ny_inject.ne.3.and.i.gt.(nx - 20)) aps (j,i) = 0. !Tian wider zero plastic strain zero zone
+            if (ny_inject.eq.3.and.j.eq.iy1(1).and.i.ge.ix1(1).and.i.le.ix2(1)) aps (j,i) = 0. !Tian wider zero plastic strain zero zone
         end if
 
         ! TOTAL FINITE STRAIN
