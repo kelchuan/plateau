@@ -27,8 +27,8 @@ endif
 
 write(*,*) '****Surface Particles for RIDGE models: np=',np
 
-!dxp=rxbo/dble(np)
-dxp=rxbo/dble(np)/2 !Tian only first half has particles to save calc
+dxp=rxbo/dble(np) !Tian_plateau_2019
+!dxp=rxbo/dble(np)/2 !Tian only first half has particles to save calc
 
 !do 100 i=1,np/2
 !   xp(i)=x0+dxp*(i-1)
@@ -36,7 +36,8 @@ dxp=rxbo/dble(np)/2 !Tian only first half has particles to save calc
 !   xp(np-i+1)=x0+rxbo/2.-dxp*(i-1) !Tian only first half has particles to save calc
 !100 continue
 do 100 i=1,np
-   xp(i,:)=dble(x0)+dble(npelem)*dble(dxp)*2*2+dble(dxp)*dble(i-1)   !(+npelem*dxp to shift off axis &
+   xp(i,:)=dble(x0)+dble(dxp)*dble(i-1)   !Tian_plateau_2019
+!   xp(i,:)=dble(x0)+dble(npelem)*dble(dxp)*2*2+dble(dxp)*dble(i-1)   !(+npelem*dxp to shift off axis &
    !  0.5 element width, *2*2, is to shift off axis 2 elements width, &
    ! so that viscous widening dike will not affect the leftmost particles)
    !because fortran store multi-dim arrays in column-major order, different period of
